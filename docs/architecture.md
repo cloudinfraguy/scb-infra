@@ -1,37 +1,25 @@
+```mermaid
 graph TD
-    %% VPC
     VPC["VPC<br>10.0.0.0/16"]
-
-    %% Subnets
     PubSubnet["Public Subnet<br>10.0.1.0/24"]
     PrivSubnet["Private Subnet<br>10.0.2.0/24"]
-
-    %% Gateways
     IGW["Internet Gateway"]
     NAT["NAT Gateway"]
-
-    %% Security Groups
     SGPublic["SG: Public VM<br>SSH from 203.0.113.10/32"]
     SGPrivate["SG: Private VM<br>From Public SG only"]
-
-    %% EC2 instances
     PubVM["Public VM<br>t3.micro"]
     PrivVM["Private VM<br>t3.micro"]
 
-    %% Relationships
     VPC --> PubSubnet
     VPC --> PrivSubnet
-
     PubSubnet --> IGW
     PubSubnet --> NAT
     PrivSubnet --> NAT
-
     PubVM --> PubSubnet
     PrivVM --> PrivSubnet
-
     PubVM --> SGPublic
     PrivVM --> SGPrivate
-
     SGPrivate --> SGPublic
     SGPublic --> IGW
     SGPrivate --> NAT
+```
