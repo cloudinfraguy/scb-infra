@@ -1,10 +1,9 @@
 # scb-infra
-Screening test for SCB
 
-# AWS VPC + EC2 Demo (Terraform)
+AWS VPC + EC2 Demo (Terraform)
 
 ## Overview  
-This Terraform configuration provisions a small, fully functional AWS network that demonstrates:
+This Terraform configuration provisions a small, fully functional AWS infrastructure which includes:
 
 | Resource | Purpose |
 |----------|---------|
@@ -37,11 +36,16 @@ Configure your AWS credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, op
 ## Project Structure  
 
 ```
-├── main.tf          # VPC, subnets, gateways, route tables
+├── data.tf          # Common data sources, include validations for the AWS account id and region to ensure we operate in the correct environment
+├── networking.tf    # VPC, subnets, gateways, route tables
 ├── security.tf      # Security groups
-├── instances.tf     # EC2 resources (uses data source for Amazon Linux 2 AMI)
-├── outputs.tf       # Output values (IP addresses)
-├── variables.tf     # (optional) variables for IP whitelist, region, etc.
+├── ec2.tf           # EC2 resources (uses data source for Amazon Linux 2 AMI)
+├── locals.tf        # Common local variables, such as default tags and config
+├── outputs.tf       # Output values (IP addresses for EC2 instances)
+├── variables.tf     # Variables for account id, region, etc.
+├── provider.tf      # Terraform provider definition
+├── version.tf       # Terraform version requirements
+├── backend.tf       # Terraform backend configuration (currently disabled)
 ├── docs/
 │   └── architecture.md   # Mermaid diagram
 └── README.md        # ← this file
@@ -73,32 +77,19 @@ terraform destroy   # type "yes"
 
 ## Customising the Deployment  
 
+Modify the configuration file `config/values.yml` according to your needs.
+
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `allowed_ip` | CIDR block allowed to SSH into the public VM (e.g., `203.0.113.10/32`) | `0.0.0.0/0` (replace with your IP) |
-| `region` | AWS region for deployment | `us-east-1` |
-| `instance_type` | EC2 instance type for both VMs | `t3.micro` |
+| `s3_tf_state_bucket_name` | S3 bucket name to use with TF state (globally unique) | `sc-infra-tf-state-bucket-dev` |
+| `account_id` | AWS Account Id | `000000000000` |
+| `region` | AWS region for deployment | `us-west-1` |
+| `environment` | Environment name (e.g. dev/qa/prd) | `dev` |
 
-Example `variables.tf` snippet:
-
-```hcl
-variable "allowed_ip" {
-  description = "IP allowed to SSH to the public instance"
-  type        = string
-  default     = "0.0.0.0/0"
-}
-```
-
-Reference it in the security group:
-
-```hcl
-cidr_blocks = [var.allowed_ip]
-```
-
-Run with a custom value:
+Run Terraform with custom variables:
 
 ```bash
-terraform apply -var="allowed_ip=203.0.113.10/32"
+terraform apply -var "s3_tf_state_bucket_name=sc-infra-tf-state-bucket-dev" -var 'account_id=000000000000' -var 'region=eu-west-1' -var 'environment=dev' # update values to your needs
 ```
 
 ---
@@ -114,7 +105,7 @@ graph TD
     PrivSubnet["Private Subnet<br>10.0.2.0/24"]
     IGW["Internet Gateway"]
     NAT["NAT Gateway"]
-    SGPublic["SG: Public VM<br>SSH from 203.0.113.10/32"]
+    SGPublic["SG: Public VM<br>SSH from allowed_cidr_list"]
     SGPrivate["SG: Private VM<br>From Public SG only"]
     PubVM["Public VM<br>t3.micro"]
     PrivVM["Private VM<br>t3.micro"]

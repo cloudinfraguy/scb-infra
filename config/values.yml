@@ -2,5 +2,9 @@ vpc_cidr: "10.0.0.0/16"
 public_subnet_cidr: "10.0.1.0/24"
 private_subnet_cidr: "10.0.2.0/24"
 availability_zone: "a"
-allowed_ip_list:
-  - "5.13.127.74"
+allowed_cidr_list:
+  - "5.13.127.74/32" # replace this with your own
+public_vm:
+  instance_type: "t3.micro"
+private_vm:
+  instance_type: "t3.micro"

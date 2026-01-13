@@ -1,0 +1,9 @@
+terraform {
+  backend "s3" {
+    bucket       = var.s3_tf_state_bucket_name
+    key          = var.environment
+    region       = var.region
+    encrypt      = true
+    use_lockfile = true
+  }
+}

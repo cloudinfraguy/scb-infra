@@ -5,7 +5,7 @@ graph TD
     PrivSubnet["Private Subnet<br>10.0.2.0/24"]
     IGW["Internet Gateway"]
     NAT["NAT Gateway"]
-    SGPublic["SG: Public VM<br>SSH from 203.0.113.10/32"]
+    SGPublic["SG: Public VM<br>SSH from allowed_cidr_list"]
     SGPrivate["SG: Private VM<br>From Public SG only"]
     PubVM["Public VM<br>t3.micro"]
     PrivVM["Private VM<br>t3.micro"]
